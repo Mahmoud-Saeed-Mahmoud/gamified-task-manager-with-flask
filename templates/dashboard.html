@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">My Tasks</h2>
+                    <button class="btn btn-primary btn-add-task" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+
+                {% for task in tasks %}
+                <div class="card task-card mb-3 {% if task.completed %}completed-task{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">{{ task.title }}</h5>
+                                <p class="card-text">{{ task.description }}</p>
+                                {% if task.due_date %}
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i> Due: {{ task.due_date.strftime('%Y-%m-%d') }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {% if not task.completed %}
+                                <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check"></i> Complete
+                                </a>
+                                {% else %}
+                                <span class="badge bg-success">Completed</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center text-muted">
+                    <p>No tasks yet. Add your first task to start earning points!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Progress</h3>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="level-indicator">
+                        <i class="fas fa-star"></i> Level {{ current_user.level }}
+                    </span>
+                    <span class="points-counter">
+                        <i class="fas fa-trophy"></i> {{ current_user.points }} Points
+                    </span>
+                </div>
+                <div class="progress mb-3">
+                    <div class="progress-bar progress-width" role="progressbar"
+                         data-progress="{{ progress }}"
+                         aria-valuenow="{{ progress }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <div class="text-center streak-counter">
+                    <i class="fas fa-fire"></i> {{ current_user.streak }} Day Streak
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Badges</h3>
+                <div class="row">
+                    {% for badge in badges %}
+                    <div class="col-6">
+                        <div class="badge-card">
+                            <i class="fas fa-medal fa-2x text-warning"></i>
+                            <h5 class="mt-2">{{ badge.name }}</h5>
+                            <small class="text-muted">{{ badge.description }}</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12 text-center text-muted">
+                        <p>Complete tasks to earn badges!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin: 5px;
+        text-align: center;
+        animation: fadeIn 0.5s ease-out;
+    }
+    .streak-counter {
+        font-size: 1.2em;
+        color: #ff6b6b;
+        animation: pulse 2s infinite;
+    }
+    .level-indicator {
+        font-size: 1.2em;
+        color: #4d96ff;
+        transition: transform 0.3s ease;
+    }
+    .level-indicator:hover {
+        transform: scale(1.1);
+    }
+    .points-counter {
+        font-size: 1.2em;
+        color: #6c5ce7;
+        transition: transform 0.3s ease;
+    }
+    .points-counter:hover {
+        transform: scale(1.1);
+    }
+    .task-card {
+        transition: all 0.3s ease;
+        animation: slideIn 0.5s ease-out;
+    }
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .completed-task {
+        opacity: 0.7;
+        background-color: #f8f9fa;
+        animation: completeTask 0.5s ease-out;
+    }
+    .progress-width {
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .progress-bar {
+        background: linear-gradient(45deg, #4d96ff, #6c5ce7);
+        background-size: 200% 200%;
+        animation: gradientShift 3s ease infinite;
+    }
+
+    /* Points animation */
+    .points-added {
+        animation: pointsAdded 0.5s ease-out;
+    }
+
+    /* Animation keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes completeTask {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(0.95);
+            background-color: #28a745;
+            opacity: 0.9;
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes pointsAdded {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.2);
+            color: #28a745;
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes gradientShift {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Add task button animation */
+    .btn-add-task {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-add-task:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .btn-add-task:active {
+        transform: translateY(0);
+    }
+</style>
+
+<!-- Add Task Modal -->
+<div class="modal fade" id="addTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_task') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Task Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="due_date" class="form-label">Due Date</label>
+                        <input type="date" class="form-control" id="due_date" name="due_date">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Task</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Progress bar animation
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            const progress = progressBar.dataset.progress;
+            progressBar.style.width = progress + '%';
+        }
+
+        // Task completion animation
+        document.querySelectorAll('.btn-success').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const taskCard = this.closest('.task-card');
+                if (taskCard) {
+                    taskCard.style.animation = 'completeTask 0.5s ease-out';
+                }
+            });
+        });
+
+        // Points counter animation
+        const pointsCounter = document.querySelector('.points-counter');
+        let lastPoints = parseInt(pointsCounter.textContent.match(/\d+/)[0]);
+
+        // Create observer for points changes
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                    const newPoints = parseInt(pointsCounter.textContent.match(/\d+/)[0]);
+                    if (newPoints > lastPoints) {
+                        pointsCounter.classList.add('points-added');
+                        setTimeout(() => {
+                            pointsCounter.classList.remove('points-added');
+                        }, 500);
+                    }
+                    lastPoints = newPoints;
+                }
+            });
+        });
+
+        observer.observe(pointsCounter, {
+            characterData: true,
+            childList: true,
+            subtree: true
+        });
+
+        // Modal animation
+        const addTaskModal = document.getElementById('addTaskModal');
+        if (addTaskModal) {
+            addTaskModal.addEventListener('show.bs.modal', function() {
+                this.style.animation = 'fadeIn 0.3s ease-out';
+            });
+        }
+    });
+</script>

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 mb-4">Welcome to Task Master</h1>
+        <p class="lead">Level up your productivity with our gamified task management system!</p>
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <i class="fas fa-trophy fa-3x text-primary mb-3"></i>
+                        <h3>Earn Points</h3>
+                        <p>Complete tasks to earn points and level up your profile</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <i class="fas fa-fire fa-3x text-danger mb-3"></i>
+                        <h3>Keep Streaks</h3>
+                        <p>Maintain daily streaks to unlock special achievements</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <i class="fas fa-medal fa-3x text-warning mb-3"></i>
+                        <h3>Earn Badges</h3>
+                        <p>Collect badges as you reach new milestones</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-3">Get Started</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">Login</a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
